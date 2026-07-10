@@ -1,0 +1,45 @@
+{
+  "skill_name": "podcast-rough-cut",
+  "evals": [
+    {
+      "name": "certain_delete_only",
+      "prompt": "请把这段接触印相播客按剪辑点粗剪，只删确定删除段，切口前后各保留 1 秒，并输出剪辑清单。",
+      "expected_behavior": "使用 cuts.tsv 中的删除段，从原音频重新剪；实际删除范围为 start+1 秒到 end-1 秒；生成 M4A、剪辑清单和响度报告；不覆盖原音频。"
+    },
+    {
+      "name": "information_reduction_repair",
+      "prompt": "这个激进版剪坏了笑声和完整故事，请按信息约简重新扫描，重新生成更连贯的粗剪方案并从原音频重剪。",
+      "expected_behavior": "先根据转写稿检查笑声、情绪尾巴、完整故事和上下文承接，只删除完整自洽段；不追求 70 分钟；输出可复听的修复版。"
+    },
+    {
+      "name": "mono_loudness_balance",
+      "prompt": "我和嘉宾在单声道音频里音量不均衡，请做压限和响度标准化，并说明这种处理的限制。",
+      "expected_behavior": "说明单声道无法真正分离两位主讲人；采用 dynaudnorm、轻压缩、限幅和 loudnorm；输出响度报告，必要时建议下一步做按说话人手工分段增益。"
+    },
+    {
+      "name": "splice_silence_gap_markers",
+      "prompt": "剪辑点在剪辑软件里看不到，请在每个剪辑点插入 2 秒静音缺口，让波形上出现明显空白段。",
+      "expected_behavior": "使用 --splice-marker-mode silence-insert --splice-silence-duration 2 在每个拼接点插入静音缺口；输出总时长按剪辑点数量累计增加；剪辑清单写出静音缺口开始、结束、原音频左右衔接点和累计偏移；说明该版本只用于后期定位。"
+    },
+    {
+      "name": "restart_321_detection",
+      "prompt": "录制过程中我们会说 321 重新来。请识别到 321 时增加剪辑点，把 321 前面重复的部分剪掉；如果找不到剪辑点就不剪。",
+      "expected_behavior": "基于 SRT 扫描 321/3 2 1/三二一；以 321 后面的新 take 为参照，只在 321 前面找到可靠重复文本起点时生成剪辑段；找不到匹配时不剪；清单写明相似度和原因。"
+    },
+    {
+      "name": "direct_asr_fallback",
+      "prompt": "不用外部 ASR 脚本，直接把这段播客转写成 SRT、TXT 和 JSON。",
+      "expected_behavior": "使用 --direct-asr 读取 SILICONFLOW_API_KEY/SF_KEY/~/.config/siliconflow/api_key，长音频自动切片，合并分片时间戳后输出 SRT、TXT 和 JSON。"
+    },
+    {
+      "name": "suggest_cuts_only",
+      "prompt": "先从完整转写里扫一下 321 和口头禅，生成候选剪辑点，但不要直接剪。",
+      "expected_behavior": "使用 --suggest-cuts 从 SRT 生成候选 TSV 和 JSON；包含 321 重启候选与口头禅候选；明确候选段需人工复核，不自动加入实际剪辑。"
+    },
+    {
+      "name": "narrative_bridge_protection",
+      "prompt": "这段看起来像摄影训练履历，但它连接了外公去世后的记录冲动和后来有意识拍人道主义题材。请判断能不能整段剪。",
+      "expected_behavior": "不能把人物转折链整段删除；保留触发事件、内心判断、行动选择和后续方向，只能局部剪名单式训练细节，并确认剪后文本可独立阅读通顺。"
+    }
+  ]
+}
